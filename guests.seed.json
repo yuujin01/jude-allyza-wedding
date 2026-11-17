@@ -1,0 +1,77 @@
+[
+  {
+    "name": "Anthony Jones Tyndall",
+    "seats": 2,
+    "companions": [
+      "Sydney Dalisay"
+    ]
+  },
+  {
+    "name": "Fritzie Lourd Manlapat",
+    "seats": 3,
+    "companions": [
+      "Melvin Manlapat",
+      "Aezii Manlapat"
+    ]
+  },
+  {
+    "name": "Norverto Santos",
+    "seats": 6,
+    "companions": [
+      "Roma Santos",
+      "Joel Santos",
+      "Jacquiline Santos",
+      "Unyong Santos",
+      "Lea Luz Dineroz"
+    ]
+  },
+  {
+    "name": "Francis Jarque",
+    "seats": 5,
+    "companions": [
+      "Jenny Jarque",
+      "Gracia Amor Jarque"
+    ],
+    "unassigned_slots": 2
+  },
+  {
+    "name": "Riza Dela Cruz",
+    "seats": 2,
+    "companions": [
+      "Noel Dela Cruz"
+    ]
+  },
+  {
+    "name": "Gretchen Peña",
+    "seats": 2,
+    "companions": [
+      "Michael Peña"
+    ]
+  },
+  {
+    "name": "Alex Hernandez",
+    "seats": 1,
+    "companions": []
+  },
+  {
+    "name": "Jocelyn Manlapat",
+    "seats": 2,
+    "companions": [
+      "Generoso Manlapat"
+    ]
+  },
+  {
+    "name": "Czarina Tyndall",
+    "seats": 2,
+    "companions": [
+      "Ean Elivera"
+    ]
+  },
+  {
+    "name": "Nelson Manlapat",
+    "seats": 2,
+    "companions": [
+      "Divina Manlapat"
+    ]
+  }
+]
