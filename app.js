@@ -1,16 +1,23 @@
-const API=window.WEDDING_CONFIG?.API_URL||"";let current=null;let capacity=0;
-const $=id=>document.getElementById(id);
-function say(msg,ok=false){$("notice").textContent=msg;$("notice").style.color=ok?"#286b45":"#9a3d32"}
-function countdown(){const target=new Date("2026-12-03T11:00:00+08:00").getTime(),d=Math.max(0,target-Date.now());const vals=[Math.floor(d/86400000),Math.floor(d%86400000/3600000),Math.floor(d%3600000/60000),Math.floor(d%60000/1000)];$("timer").innerHTML=vals.map((v,i)=>`<div><b>${String(v).padStart(2,"0")}</b><span>${["DAYS","HOURS","MINUTES","SECONDS"][i]}</span></div>`).join("")}countdown();setInterval(countdown,1000);
-$("openRsvp").onclick=()=>$("rsvp").scrollIntoView({behavior:"smooth"});
-async function call(action,data={}){if(!API)throw Error("The RSVP service has not been connected yet. Please configure the Google Apps Script URL.");const r=await fetch(API,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action,...data})});const j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||"Something went wrong.");return j}
-async function loadSuggestions(){try{const r=await call("suggestions");$("guestOptions").innerHTML=r.names.map(n=>`<option value="${escapeHtml(n)}">`).join("")}catch(e){/* suggestions are optional; exact server validation remains authoritative */}}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-$("lookupForm").onsubmit=async e=>{e.preventDefault();say("Checking your invitation…");try{const r=await call("lookup",{name:$("guestSearch").value.trim(),code:$("inviteCode").value.trim()});current=r.guest;capacity=Number(current.seats);$("allocation").textContent=`${current.name} · ${capacity} seat${capacity===1?"":"s"} allocated (including you)`;$("nameRows").innerHTML="";addRow(current.name,false);(current.companions||[]).forEach(n=>addRow(n,true));$("rsvpPanel").hidden=false;$("confirmBox").checked=false;$("submitRsvp").disabled=true;say("Invitation verified. Please review your attendance details.",true);updateSummary()}catch(e){$("rsvpPanel").hidden=true;say(e.message)}};
-function addRow(value="",removable=true){if($("nameRows").children.length>=capacity){say("You have reached your allocated seat limit.");return}const div=document.createElement("div");div.className="name-row";const input=document.createElement("input");input.value=value;input.placeholder="Attendee full name";input.maxLength=100;input.addEventListener("input",updateSummary);const del=document.createElement("button");del.type="button";del.textContent="×";del.setAttribute("aria-label","Remove attendee");del.disabled=!removable;del.onclick=()=>{div.remove();updateSummary()};div.append(input,del);$("nameRows").append(div);updateSummary()}
-$("addName").onclick=()=>addRow("");document.querySelectorAll('input[name="attendance"]').forEach(x=>x.onchange=()=>{const yes=document.querySelector('input[name="attendance"]:checked').value==="yes";$("companionsArea").hidden=!yes;updateSummary()});
-function names(){return [...$("nameRows").querySelectorAll("input")].map(x=>x.value.trim()).filter(Boolean)}
-function updateSummary(){if(!$("rsvpPanel")||!current)return;const yes=document.querySelector('input[name="attendance"]:checked')?.value==="yes";const ns=yes?names():[];$("summary").textContent=yes?`Attending: ${ns.length} of ${capacity} allocated seats · ${ns.join(", ")||"No names entered"}`:"Attendance: Regretfully declines";$("submitRsvp").disabled=!$("confirmBox").checked||(yes&&(ns.length<1||ns.length>capacity||names().length!==ns.length))}
-$("confirmBox").onchange=updateSummary;
-$("submitRsvp").onclick=async()=>{const yes=document.querySelector('input[name="attendance"]:checked').value==="yes";if(yes&&(names().length<1||names().length>capacity)){say("Please check the attendee names and seat limit.");return}try{$("submitRsvp").disabled=true;say("Submitting your RSVP…");await call("submit",{name:current.name,code:$("inviteCode").value.trim(),attendance:yes?"Attending":"Declines",attendees:yes?names():[]});$("rsvpPanel").hidden=true;say("Thank you! Your RSVP has been recorded. We look forward to celebrating with you.",true)}catch(e){say(e.message);$("submitRsvp").disabled=false}};
-loadSuggestions();
+(function(){
+  const wedding = new Date('2026-12-03T11:00:00+08:00').getTime();
+  const ids = ['days','hours','minutes','seconds'];
+  function tick(){
+    let remaining=Math.max(0,wedding-Date.now());
+    const values=[Math.floor(remaining/86400000),Math.floor(remaining%86400000/3600000),Math.floor(remaining%3600000/60000),Math.floor(remaining%60000/1000)];
+    ids.forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=String(values[i]).padStart(2,'0')});
+  }
+  tick();setInterval(tick,1000);
+
+  const heart=document.getElementById('heart');
+  heart.addEventListener('click',()=>{const saved=heart.getAttribute('aria-pressed')!=='true';heart.setAttribute('aria-pressed',String(saved));heart.classList.toggle('saved',saved);heart.setAttribute('aria-label',saved?'Invitation saved in this page':'Save this invitation')});
+
+  const form=document.getElementById('rsvp');
+  const message=document.getElementById('rsvp-message');
+  form.addEventListener('submit',event=>{
+    event.preventDefault();
+    const guest=document.getElementById('guest-name').value.trim();
+    const choice=form.querySelector('input[name="attendance"]:checked');
+    if(!guest||!choice){message.textContent='Please enter your name and choose an attendance response.';return;}
+    message.textContent='Thank you, '+guest+'. Your response is selected, but online RSVP submission is not connected yet. Please contact the couple to confirm.';
+  });
+})();
