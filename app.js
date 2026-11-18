@@ -10,9 +10,23 @@ function updateCountdown(){
 }
 updateCountdown();setInterval(updateCountdown,1000);
 
+// Background music: attempt autoplay on page load. Browsers may block audible autoplay;
+// retry immediately on the visitor's first interaction (including opening the envelope).
+const musicFrame=document.getElementById('music-player');
+let musicStartedByInteraction=false;
+function startWeddingMusic(){
+ if(!musicFrame||musicStartedByInteraction)return;
+ musicStartedByInteraction=true;
+ try{
+  musicFrame.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}), '*');
+ }catch(_err){}
+}
+window.addEventListener('pointerdown',startWeddingMusic,{once:true});
+window.addEventListener('keydown',startWeddingMusic,{once:true});
+
 // Envelope intro
 const screen=document.getElementById('envelope-screen'), envelope=document.getElementById('envelope');
-function openInvitation(){if(!screen||screen.classList.contains('opening'))return;screen.classList.add('opening');setTimeout(()=>{screen.classList.add('closed');document.body.classList.remove('locked')},1450);setTimeout(()=>screen.remove(),2100)}
+function openInvitation(){startWeddingMusic();if(!screen||screen.classList.contains('opening'))return;screen.classList.add('opening');setTimeout(()=>{screen.classList.add('closed');document.body.classList.remove('locked')},1450);setTimeout(()=>screen.remove(),2100)}
 document.body.classList.add('locked');
 document.getElementById('open-envelope')?.addEventListener('click',openInvitation);
 envelope?.addEventListener('click',openInvitation);
@@ -34,12 +48,17 @@ function updateSeatNote(){
 }
 function resetPreview(){selectedGuest=null;preview.hidden=true;seatCount.textContent='—';if(message)message.textContent='';}
 function renderGuest(data,matched){
- const g={id:Number(data.groupId),name:data.mainGuest,seats:Number(data.seats),companions:Array.isArray(data.companions)?data.companions:[]};
- selectedGuest=g;searchedMember=matched;preview.hidden=false;previewMain.textContent=g.name;
+ // The person who searched becomes the Main Guest for this RSVP.
+ // Everyone else already registered in the same group becomes a companion.
+ const registeredNames=Array.isArray(data.names)&&data.names.length?data.names:[data.mainGuest,...(data.companions||[])];
+ const matchedName=registeredNames.find(name=>norm(name)===norm(matched))||matched;
+ const otherNames=registeredNames.filter(name=>norm(name)!==norm(matchedName));
+ const g={id:Number(data.groupId),name:matchedName,seats:Number(data.seats),companions:otherNames};
+ selectedGuest=g;searchedMember=matchedName;preview.hidden=false;previewMain.textContent=g.name;
  previewSeats.textContent=g.seats;seatCount.textContent=g.seats;companionList.innerHTML='';
  const foundAs=document.getElementById('matched-as');
- if(foundAs)foundAs.textContent=norm(matched)===norm(g.name)?'You searched the main guest name.':'You searched a companion name; this is the same guest group.';
- // The main guest occupies one allocated seat; only remaining seats are editable.
+ if(foundAs)foundAs.textContent='You are the Main Guest for this RSVP. Other registered members in your group are listed as companions.';
+ // The selected Main Guest occupies one allocated seat; remaining seats are companions.
  for(let i=0;i<g.seats-1;i++){
   const value=g.companions[i]||'';const row=document.createElement('div');row.className='companion-row';
   const check=document.createElement('input');check.type='checkbox';check.className='companion-check';check.checked=Boolean(value);check.setAttribute('aria-label',`Include companion ${i+1}`);
@@ -47,7 +66,7 @@ function renderGuest(data,matched){
   check.addEventListener('change',()=>{name.disabled=!check.checked;if(!check.checked)name.value='';updateSeatNote()});
   name.addEventListener('input',updateSeatNote);row.append(check,name);companionList.append(row);
  }
- updateSeatNote();hint.textContent=`Found ${matched}. This name belongs to ${g.name}'s group. Any member of this group may complete the shared RSVP.`;
+ updateSeatNote();hint.textContent=`Welcome, ${g.name}. You are the Main Guest for this RSVP. Your group has ${g.seats} allocated seat(s).`;
 }
 function jsonpSearch(query){
  return new Promise((resolve,reject)=>{
