@@ -1,15 +1,42 @@
 # Jude & Allyza Wedding Website
 
-This package connects the RSVP form to the Google Apps Script Web App configured in `app.js`.
+This package connects the RSVP guest lookup and submissions to the Google Apps Script web app configured in `app.js`.
 
-## Deploy
-Upload the contents of this folder to the existing GitHub repository / GitHub Pages site. Do not upload the private Google Sheet or its credentials. The guest list is queried from Apps Script and is not embedded in the website files.
+## Live name suggestions
 
-## RSVP behavior
-- Guests search using their exact registered full name (main guest or companion).
-- All names in a household resolve to one shared group record.
-- The form submits the main guest plus selected companions, within the group's allocated seats.
-- Submitting again updates the existing group response row in `RSVP Responses`.
+The guest search field requests matching registered names as the visitor types (after 2 characters), then lets the visitor select a suggestion using the browser's native autocomplete list. Selecting a name performs the exact guest lookup and displays the shared invitation preview.
 
-## Important testing note
-The browser sends the RSVP request using a no-cors form POST because Apps Script ContentService responses are cross-origin. The page can confirm that the request was sent, but cannot read the server response. Verify actual submissions in the private Google Sheet's `RSVP Responses` tab before announcing the site.
+The Apps Script backend must include an `action=suggest` handler. Add the following inside `doGet(e)`, before the existing `search` branch:
+
+```js
+if (action === 'suggest') {
+  result = suggestGuests(e.parameter.q || '');
+} else if (action === 'search') {
+  result = searchGuest(e.parameter.q || '');
+} else {
+  result = { ok: true, message: 'Jude & Allyza RSVP API is running.' };
+}
+```
+
+Then add this function to `Code.gs`:
+
+```js
+function suggestGuests(query) {
+  const q = normalize(query);
+  if (q.length < 2) return { ok: true, suggestions: [] };
+
+  const matches = [];
+  for (const g of GUESTS) {
+    for (const name of [g[0], ...g[2]]) {
+      if (normalize(name).includes(q)) matches.push(name);
+    }
+  }
+  return { ok: true, suggestions: [...new Set(matches)].slice(0, 8) };
+}
+```
+
+After editing Apps Script, save and deploy a **new version** of the existing Web App deployment. Keep the Google Sheet private.
+
+## Publish
+
+Upload the contents of this ZIP to the existing GitHub Pages repository (not the ZIP file itself).

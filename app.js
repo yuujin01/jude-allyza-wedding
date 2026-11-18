@@ -24,7 +24,7 @@ const hint=document.getElementById('guest-hint'), seatCount=document.getElementB
 const preview=document.getElementById('guest-preview'), previewMain=document.getElementById('preview-main');
 const previewSeats=document.getElementById('preview-seats'), companionList=document.getElementById('companion-list');
 const seatNote=document.getElementById('seat-note'), message=document.getElementById('rsvp-message');
-let selectedGuest=null, searchedMember='', lookupToken=0;
+let selectedGuest=null, searchedMember='', lookupToken=0, suggestionTimer=null, suggestionToken=0;
 function norm(s){return String(s||'').toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ')}
 function updateSeatNote(){
  if(!selectedGuest)return;
@@ -61,6 +61,31 @@ function jsonpSearch(query){
   document.body.appendChild(script);
  });
 }
+function jsonpSuggest(query){
+ return new Promise((resolve,reject)=>{
+  const callback='jaGuestSuggest_'+Date.now()+'_'+Math.floor(Math.random()*100000);
+  const script=document.createElement('script');
+  const timeout=setTimeout(()=>{cleanup();reject(new Error('Suggestions timed out.'));},9000);
+  function cleanup(){clearTimeout(timeout);delete window[callback];script.remove();}
+  window[callback]=(result)=>{cleanup();resolve(result);};
+  script.onerror=()=>{cleanup();reject(new Error('Unable to load name suggestions.'));};
+  script.src=API_URL+'?action=suggest&q='+encodeURIComponent(query)+'&callback='+callback;
+  document.body.appendChild(script);
+ });
+}
+async function updateSuggestions(query){
+ const token=++suggestionToken;
+ if(!list)return;
+ list.innerHTML='';
+ if(query.trim().length<2)return;
+ try{
+  const result=await jsonpSuggest(query.trim());
+  if(token!==suggestionToken)return;
+  if(result&&result.ok&&Array.isArray(result.suggestions)){
+   result.suggestions.forEach(name=>{const option=document.createElement('option');option.value=name;list.appendChild(option);});
+  }
+ }catch(_err){/* Exact-name search remains available if suggestions fail. */}
+}
 async function lookupGuest(){
  const q=input.value.trim();const token=++lookupToken;resetPreview();
  if(!q){hint.textContent='Search using your registered full name — main guest or companion.';return;}
@@ -74,7 +99,10 @@ async function lookupGuest(){
 }
 input?.addEventListener('change',lookupGuest);
 input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookupGuest();}});
-input?.addEventListener('input',()=>{lookupToken++;resetPreview();hint.textContent='Type your registered full name, then select the field suggestion or press Enter.';});
+input?.addEventListener('input',()=>{
+ lookupToken++;resetPreview();hint.textContent='Searching matching names… select a suggestion when it appears, or finish typing the full name.';
+ clearTimeout(suggestionTimer);suggestionTimer=setTimeout(()=>updateSuggestions(input.value),250);
+});
 
 // Submit URL-encoded form data. no-cors avoids a browser preflight; the endpoint response is opaque,
 // so the page reports that the request was sent, not that Google confirmed it.
