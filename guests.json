@@ -1,0 +1,202 @@
+[
+  {
+    "id": "G01",
+    "name": "Allyza Guevarra-Santos",
+    "seats": 2,
+    "companions": [
+      "Jan Rei Jude Santos"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G02",
+    "name": "Fernando Santos",
+    "seats": 1,
+    "companions": [],
+    "vacant": 0
+  },
+  {
+    "id": "G03",
+    "name": "Judy Ann Santos",
+    "seats": 2,
+    "companions": [
+      "Kim Bryan Manchete"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G04",
+    "name": "Jero Jan Rein Santos",
+    "seats": 1,
+    "companions": [],
+    "vacant": 0
+  },
+  {
+    "id": "G05",
+    "name": "Alexa Guevarra",
+    "seats": 1,
+    "companions": [],
+    "vacant": 0
+  },
+  {
+    "id": "G06",
+    "name": "Aldrin Guevarra",
+    "seats": 2,
+    "companions": [
+      "Edison Sambili"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G07",
+    "name": "Arthur Guevarra",
+    "seats": 2,
+    "companions": [
+      "Neriza Guevarra"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G08",
+    "name": "Lovely Guevarra",
+    "seats": 4,
+    "companions": [
+      "Willard Anejo",
+      "Lorna Guevarra",
+      "Reynaldo Guevarra"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G09",
+    "name": "Edna Guevarra",
+    "seats": 4,
+    "companions": [
+      "Rolando Manlapat",
+      "Rosalie Guevarra",
+      "Albert Guevarra"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G10",
+    "name": "Jessie Rivera",
+    "seats": 3,
+    "companions": [
+      "Letty Casbadillo"
+    ],
+    "vacant": 1
+  },
+  {
+    "id": "G11",
+    "name": "Anthony Jones Tyndall",
+    "seats": 2,
+    "companions": [
+      "Sydney Dalisay"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G12",
+    "name": "Fritzie Lourd Manlapat",
+    "seats": 3,
+    "companions": [
+      "Melvin Manlapat",
+      "Aezii Manlapat"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G13",
+    "name": "Norverto Santos",
+    "seats": 2,
+    "companions": [
+      "Roma Santos"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G14",
+    "name": "Joel Santos",
+    "seats": 2,
+    "companions": [],
+    "vacant": 0
+  },
+  {
+    "id": "G15",
+    "name": "Unyong Santos",
+    "seats": 2,
+    "companions": [
+      "Lea Luz Dineroz"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G16",
+    "name": "Francis Jarque",
+    "seats": 4,
+    "companions": [
+      "Jenny Jarque"
+    ],
+    "vacant": 2
+  },
+  {
+    "id": "G17",
+    "name": "Gracia Amor Jarque",
+    "seats": 1,
+    "companions": [],
+    "vacant": 0
+  },
+  {
+    "id": "G18",
+    "name": "Riza Dela Cruz",
+    "seats": 2,
+    "companions": [
+      "Noel Dela Cruz"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G19",
+    "name": "Gretchen Peña",
+    "seats": 2,
+    "companions": [
+      "Michael Peña"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G20",
+    "name": "Alex Hernandez",
+    "seats": 1,
+    "companions": [],
+    "vacant": 0
+  },
+  {
+    "id": "G21",
+    "name": "Jocelyn Manlapat",
+    "seats": 2,
+    "companions": [
+      "Generoso Manlapat"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G22",
+    "name": "Czarina Tyndall",
+    "seats": 2,
+    "companions": [
+      "Ean Elivera"
+    ],
+    "vacant": 0
+  },
+  {
+    "id": "G23",
+    "name": "Nelson Manlapat",
+    "seats": 2,
+    "companions": [
+      "Divina Manlapat"
+    ],
+    "vacant": 0
+  }
+]

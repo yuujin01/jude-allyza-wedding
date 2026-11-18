@@ -1,49 +1,74 @@
-// Wedding time: December 3, 2026 at 11:00 AM Philippine time (UTC+8)
+// Wedding countdown: December 3, 2026 at 11:00 AM Philippine time.
 const weddingAt = new Date('2026-12-03T11:00:00+08:00').getTime();
 function updateCountdown(){
-  const diff=Math.max(0,weddingAt-Date.now());
-  const values={days:Math.floor(diff/86400000),hours:Math.floor(diff%86400000/3600000),minutes:Math.floor(diff%3600000/60000),seconds:Math.floor(diff%60000/1000)};
-  Object.entries(values).forEach(([id,n])=>{const el=document.getElementById(id);if(el)el.textContent=id==='days'?String(n):String(n).padStart(2,'0')});
+ const diff=Math.max(0,weddingAt-Date.now());
+ const v={days:Math.floor(diff/86400000),hours:Math.floor(diff%86400000/3600000),minutes:Math.floor(diff%3600000/60000),seconds:Math.floor(diff%60000/1000)};
+ Object.entries(v).forEach(([id,n])=>{const el=document.getElementById(id);if(el)el.textContent=id==='days'?String(n):String(n).padStart(2,'0')});
 }
 updateCountdown();setInterval(updateCountdown,1000);
 
-// Envelope welcome screen: opens the card before guests enter the website.
-const envelopeScreen=document.getElementById('envelope-screen');
-const envelope=document.getElementById('envelope');
-function openInvitation(){if(envelopeScreen.classList.contains('opening'))return;envelopeScreen.classList.add('opening');setTimeout(()=>{envelopeScreen.classList.add('closed');document.body.classList.remove('locked')},1450);setTimeout(()=>envelopeScreen.remove(),2100)}
+// Envelope intro
+const screen=document.getElementById('envelope-screen'), envelope=document.getElementById('envelope');
+function openInvitation(){if(!screen||screen.classList.contains('opening'))return;screen.classList.add('opening');setTimeout(()=>{screen.classList.add('closed');document.body.classList.remove('locked')},1450);setTimeout(()=>screen.remove(),2100)}
 document.body.classList.add('locked');
-document.getElementById('open-envelope').addEventListener('click',openInvitation);
-envelope.addEventListener('click',openInvitation);
-envelope.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInvitation()}});
+document.getElementById('open-envelope')?.addEventListener('click',openInvitation);
+envelope?.addEventListener('click',openInvitation);
+envelope?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInvitation()}});
 
-// Guest allocations from the supplied guest list. Companion names are editable in the preview.
-const guests=[
- {name:'Anthony Jones Tyndall',seats:2,companions:['Sydney Dalisay']},
- {name:'Fritzie Lourd Manlapat',seats:3,companions:['Melvin Manlapat','Aezii Manlapat']},
- {name:'Norverto Santos',seats:6,companions:['Roma Santos','Joel Santos','Jacquiline Santos','Unyong Santos','Lea Luz Dineroz']},
- {name:'Francis Jarque',seats:5,companions:['Jenny Jarque','Gracia Amor Jarque']},
- {name:'Riza Dela Cruz',seats:2,companions:['Noel Dela Cruz']},
- {name:'Gretchen Peña',seats:2,companions:['Michael Peña']},
- {name:'Alex Hernandez',seats:1,companions:[]},
- {name:'Jocelyn Manlapat',seats:2,companions:['Generoso Manlapat']},
- {name:'Czarina Tyndall',seats:2,companions:['Ean Elivera']},
- {name:'Nelson Manlapat',seats:2,companions:['Divina Manlapat']}
-];
-const input=document.getElementById('guest-name'),list=document.getElementById('guest-options'),hint=document.getElementById('guest-hint'),seatCount=document.getElementById('seat-count'),preview=document.getElementById('guest-preview'),previewMain=document.getElementById('preview-main'),previewSeats=document.getElementById('preview-seats'),companionList=document.getElementById('companion-list'),seatNote=document.getElementById('seat-note'),message=document.getElementById('rsvp-message');
-let selectedGuest=null;
-function norm(s){return s.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ')}
-function renderGuest(g){selectedGuest=g;preview.hidden=false;previewMain.textContent=g.name;previewSeats.textContent=g.seats;seatCount.textContent=g.seats;companionList.innerHTML='';
- const maxCompanions=Math.max(0,g.seats-1);
- for(let i=0;i<maxCompanions;i++){
-   const value=g.companions[i]||'';const row=document.createElement('div');row.className='companion-row';
-   const check=document.createElement('input');check.type='checkbox';check.checked=Boolean(value);check.setAttribute('aria-label','Include companion '+(i+1));
-   const name=document.createElement('input');name.type='text';name.value=value;name.placeholder='Companion name (optional)';name.disabled=!check.checked;name.setAttribute('aria-label','Companion name '+(i+1));
-   check.addEventListener('change',()=>{name.disabled=!check.checked;if(!check.checked)name.value='';updateSeatNote()});name.addEventListener('input',updateSeatNote);
-   row.append(check,name);companionList.append(row);
- }
- updateSeatNote();hint.textContent='Guest found. Review your name and allocated companions below.';
+// Guest directory: a companion name resolves to the same household/group record.
+const guests = window.GUEST_DATA || [];
+const input=document.getElementById('guest-name'), list=document.getElementById('guest-options');
+const hint=document.getElementById('guest-hint'), seatCount=document.getElementById('seat-count');
+const preview=document.getElementById('guest-preview'), previewMain=document.getElementById('preview-main');
+const previewSeats=document.getElementById('preview-seats'), companionList=document.getElementById('companion-list');
+const seatNote=document.getElementById('seat-note'), message=document.getElementById('rsvp-message');
+let selectedGuest=null, searchedMember='';
+function norm(s){return String(s||'').toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ')}
+// Every registered person is searchable: the main guest AND every companion.
+// A companion match always opens the same shared group record.
+function allNames(g){return [...new Set([g.name,...(g.companions||[])].filter(Boolean))]}
+function findMatches(q){
+ if(!q)return [];
+ return guests.flatMap(g=>allNames(g).filter(n=>norm(n).includes(q)).map(n=>({group:g,matched:n})));
 }
-function updateSeatNote(){if(!selectedGuest)return;const included=[...companionList.querySelectorAll('.companion-row')].filter(r=>r.querySelector('input[type=checkbox]').checked&&r.querySelector('input[type=text]').value.trim()).length;seatNote.textContent=`${included+1} of ${selectedGuest.seats} allocated seats currently filled (including you). You can leave seats unused.`}
-input.addEventListener('input',()=>{const q=norm(input.value);list.innerHTML='';selectedGuest=null;preview.hidden=true;seatCount.textContent='—';message.textContent='';const matches=q?guests.filter(g=>norm(g.name).includes(q)):[];matches.forEach(g=>{const opt=document.createElement('option');opt.value=g.name;list.append(opt)});const exact=guests.find(g=>norm(g.name)===q);if(exact)renderGuest(exact);else hint.textContent=q?(matches.length?`${matches.length} matching guest name(s). Choose your full registered name.`:'Name not found in the current guest list.'):'Start typing your registered name.'});
-input.addEventListener('change',()=>{const g=guests.find(x=>norm(x.name)===norm(input.value));if(g)renderGuest(g)});
-document.getElementById('rsvp-form').addEventListener('submit',e=>{e.preventDefault();if(!selectedGuest){message.textContent='Please select your exact registered name first.';return}const attendance=document.querySelector('input[name="attendance"]:checked');if(!attendance){message.textContent='Please select Joyfully accepts or Regretfully declines.';return}const companions=[...companionList.querySelectorAll('.companion-row')].filter(r=>r.querySelector('input[type=checkbox]').checked).map(r=>r.querySelector('input[type=text]').value.trim()).filter(Boolean);message.textContent=`Preview ready for ${selectedGuest.name}: ${attendance.value}. ${companions.length+1} guest name(s) listed out of ${selectedGuest.seats} allocated seats. Online RSVP saving is not connected yet.`});
+function updateSeatNote(){
+ if(!selectedGuest)return;
+ const used=[...companionList.querySelectorAll('.companion-row')].filter(r=>r.querySelector('.companion-check').checked&&r.querySelector('.companion-name').value.trim()).length+1;
+ const vacant=selectedGuest.seats-used;
+ seatNote.textContent=`${used} of ${selectedGuest.seats} allocated seats filled. ${vacant} seat(s) remaining. Vacant seats may be left unused.`;
+}
+function renderGuest(g,matched){
+ selectedGuest=g;searchedMember=matched;preview.hidden=false;previewMain.textContent=g.name;
+ previewSeats.textContent=g.seats;seatCount.textContent=g.seats;companionList.innerHTML='';
+ const foundAs=document.getElementById('matched-as');
+ if(foundAs)foundAs.textContent=matched.toLocaleLowerCase()===g.name.toLocaleLowerCase()?'You searched the main guest name.':'You searched a companion name; this is the same guest group.';
+ for(let i=0;i<g.seats-1;i++){
+  const value=g.companions[i]||'';const row=document.createElement('div');row.className='companion-row';
+  const check=document.createElement('input');check.type='checkbox';check.className='companion-check';check.checked=Boolean(value);check.setAttribute('aria-label',`Include companion ${i+1}`);
+  const name=document.createElement('input');name.type='text';name.className='companion-name';name.value=value;name.placeholder='Companion name (optional)';name.disabled=!check.checked;name.setAttribute('aria-label',`Companion name ${i+1}`);
+  check.addEventListener('change',()=>{name.disabled=!check.checked;if(!check.checked)name.value='';updateSeatNote()});
+  name.addEventListener('input',updateSeatNote);row.append(check,name);companionList.append(row);
+ }
+ updateSeatNote();hint.textContent=`Found ${matched}. This name belongs to ${g.name}'s group. Any member of this group may complete the shared RSVP.`;
+}
+function resetPreview(){selectedGuest=null;preview.hidden=true;seatCount.textContent='—';if(message)message.textContent='';}
+input?.addEventListener('input',()=>{
+ const q=norm(input.value);list.innerHTML='';resetPreview();
+ if(!q){hint.textContent='Search using any registered name — main guest or companion.';return;}
+ const matches=findMatches(q);const seen=new Set();
+ matches.forEach(m=>{if(!seen.has(m.matched)){seen.add(m.matched);const opt=document.createElement('option');opt.value=m.matched;list.append(opt)}});
+ const exact=matches.find(m=>norm(m.matched)===q);
+ if(exact)renderGuest(exact.group,exact.matched);
+ else hint.textContent=matches.length?`${matches.length} matching name(s). Choose or type the exact full name — companions are searchable too.`:'Name not found. Check the spelling or try another registered name.';
+});
+input?.addEventListener('change',()=>{const q=norm(input.value);const m=findMatches(q).find(x=>norm(x.matched)===q);if(m)renderGuest(m.group,m.matched)});
+
+document.getElementById('rsvp-form')?.addEventListener('submit',e=>{
+ e.preventDefault();if(!selectedGuest){message.textContent='Please enter the exact full name of any registered group member first.';return;}
+ const attendance=document.querySelector('input[name="attendance"]:checked');if(!attendance){message.textContent='Please select Joyfully accepts or Regretfully declines.';return;}
+ const companions=[...companionList.querySelectorAll('.companion-row')].filter(r=>r.querySelector('.companion-check').checked).map(r=>r.querySelector('.companion-name').value.trim()).filter(Boolean);
+ const total=attendance.value==='Joyfully accepts'?1+companions.length:0;
+ const payload={groupId:selectedGuest.id,mainGuest:selectedGuest.name,searchedName:searchedMember,allocatedSeats:selectedGuest.seats,attendance:attendance.value,companions,attendingCount:total};
+ // Backend connection is deliberately not simulated. This preview confirms the exact data before Sheets setup.
+ message.textContent=`RSVP preview: ${payload.mainGuest} — ${payload.attendance}. ${payload.attendingCount} attending out of ${payload.allocatedSeats} allocated seats. Google Sheets saving still needs to be connected.`;
+});

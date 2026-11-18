@@ -1,20 +1,29 @@
-# Jude & Allyza Wedding Invitation
+# Jude & Allyza — Updated RSVP Guest List
 
-A responsive, section-based wedding invitation inspired by the supplied blue, ivory and champagne-gold reference.
+This package updates the existing GitHub Pages website. It uses the current envelope / blended watercolor design and adds the latest supplied guest directory.
 
-## Files to upload to the existing GitHub repository
-- `index.html`
-- `style.css`
-- `app.js`
-- `assets/` (upload the entire folder)
+## Files
+- `index.html`, `style.css`, `app.js` — website files
+- `guests.json` — readable copy of the guest directory
+- `assets/` — floral and couple artwork
 
-Keep any existing `Code.gs` and `guests.seed.json` files for now. This static front-end currently provides a live countdown, guest-name/seat lookup for the 10 main guest entries included in `app.js`, and two Google Maps embeds/links.
+## Guest-list rules applied
+- Each name with a seat count starts a new guest group.
+- Following names with blank seat counts are companions of that group until the next seat-count entry.
+- `Vacant` is not a searchable guest; it represents an unused seat in the allocation.
+- EVERY listed name is searchable: the main guest and every companion.
+- Searching by a companion name resolves to the exact same household/group as searching by the main guest.
+- Any member of a group can complete the one shared RSVP; the searcher name is retained in the RSVP preview.
+- Companions can be edited or removed in the preview, and no more companion slots than the allocated seats are shown.
 
-## Google Maps
-- Ceremony: Municipal Court, Dinalupihan, Bataan, Philippines
-- Reception: Arca Vista, Palihan, Hermosa, Bataan, Philippines
+## Allocation audit
+- Guest groups: 23
+- Total allocated seats: 49
+- Single-seat groups: 5
+- Vacant slots explicitly listed: 3
 
-The map embeds use Google Maps search queries. Confirm the exact venue pin in Google Maps before sending the invitation to guests.
+## Important
+The RSVP form currently generates a client-side confirmation preview only. It does not yet save responses to Google Sheets. The guest directory is bundled in the public website files for client-side lookup, so names are visible to anyone who inspects the site. For private guest data and persistent RSVP saving, connect a Google Sheets + Apps Script backend before publishing.
 
-## RSVP limitation
-The form currently validates the demo guest list in the browser. It does not save responses to Google Sheets or a database yet. Connect a secure backend before using it for live guest responses.
+## Deploy
+Upload/replace `index.html`, `app.js`, and `guests.json` in the repository. Keep the existing `style.css` and `assets/` from this package. Commit to `main` and `/ (root)` GitHub Pages.
