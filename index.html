@@ -8,25 +8,7 @@
   <meta name="description" content="Jude and Allyza's wedding invitation — December 3, 2026.">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="envelope-locked">
-  <section class="envelope-screen" id="envelope-screen" aria-label="Open wedding invitation">
-    <div class="envelope-intro">
-      <p class="envelope-kicker">TOGETHER WITH THEIR FAMILIES</p>
-      <h1>Jude <span>&</span> Allyza</h1>
-      <p class="envelope-instruction">You are joyfully invited to celebrate our wedding</p>
-    </div>
-    <button class="envelope-button" id="open-envelope" type="button" aria-label="Open the wedding invitation">
-      <span class="envelope-back"></span>
-      <span class="envelope-letter"><span>J <i>&</i> A</span><small>DECEMBER 3, 2026</small></span>
-      <span class="envelope-pocket"></span>
-      <span class="envelope-flap"></span>
-      <span class="wax-seal">J<span>&</span>A</span>
-      <span class="envelope-sprig sprig-left">❧</span>
-      <span class="envelope-sprig sprig-right">❧</span>
-    </button>
-    <p class="tap-to-open">TAP THE SEAL TO OPEN</p>
-    <p class="envelope-date">03 · 12 · 2026</p>
-  </section>
+<body>
   <main class="invitation" aria-label="Jude and Allyza wedding invitation">
     <img class="poster" src="assets/invitation-reference.png" alt="Jude and Allyza's watercolor blue and gold wedding invitation with wedding details, attire guide, gift note and RSVP information">
 
@@ -59,7 +41,12 @@
       <p id="rsvp-message" class="rsvp-message" role="status" aria-live="polite"></p>
     </form>
 
-
+    <div class="countdown-overlay" aria-label="Countdown to the wedding">
+      <div><strong id="days">—</strong><span>Days</span></div>
+      <div><strong id="hours">—</strong><span>Hours</span></div>
+      <div><strong id="minutes">—</strong><span>Minutes</span></div>
+      <div><strong id="seconds">—</strong><span>Seconds</span></div>
+    </div>
   </main>
   <script src="app.js"></script>
 </body>

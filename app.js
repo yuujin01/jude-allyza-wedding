@@ -1,19 +1,12 @@
 (function(){
-  const envelopeScreen=document.getElementById('envelope-screen');
-  const openEnvelope=document.getElementById('open-envelope');
-  if(openEnvelope&&envelopeScreen){
-    openEnvelope.addEventListener('click',()=>{
-      if(openEnvelope.disabled)return;
-      openEnvelope.disabled=true;
-      envelopeScreen.classList.add('opening');
-      window.setTimeout(()=>{
-        envelopeScreen.classList.add('dismissed');
-        document.body.classList.remove('envelope-locked');
-        window.setTimeout(()=>envelopeScreen.remove(),900);
-      },1350);
-    });
+  const wedding = new Date('2026-12-03T11:00:00+08:00').getTime();
+  const ids = ['days','hours','minutes','seconds'];
+  function tick(){
+    let remaining=Math.max(0,wedding-Date.now());
+    const values=[Math.floor(remaining/86400000),Math.floor(remaining%86400000/3600000),Math.floor(remaining%3600000/60000),Math.floor(remaining%60000/1000)];
+    ids.forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=String(values[i]).padStart(2,'0')});
   }
-
+  tick();setInterval(tick,1000);
 
   const heart=document.getElementById('heart');
   heart.addEventListener('click',()=>{const saved=heart.getAttribute('aria-pressed')!=='true';heart.setAttribute('aria-pressed',String(saved));heart.classList.toggle('saved',saved);heart.setAttribute('aria-label',saved?'Invitation saved in this page':'Save this invitation')});
