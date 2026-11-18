@@ -1,66 +1,26 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f8f1e5">
-  <title>Jude & Allyza — Wedding Invitation</title>
-  <meta name="description" content="Jude and Allyza's wedding invitation — December 3, 2026.">
+  <title>Jude & Allyza | December 3, 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="envelope-locked">
-  <section class="envelope-screen" id="envelope-screen" aria-label="Open wedding invitation">
-    <div class="envelope-intro">
-      <p class="envelope-kicker">TOGETHER WITH THEIR FAMILIES</p>
-      <h1>Jude <span>&</span> Allyza</h1>
-      <p class="envelope-instruction">You are joyfully invited to celebrate our wedding</p>
-    </div>
-    <button class="envelope-button" id="open-envelope" type="button" aria-label="Open the wedding invitation">
-      <span class="envelope-back"></span>
-      <span class="envelope-letter"><span>J <i>&</i> A</span><small>DECEMBER 3, 2026</small></span>
-      <span class="envelope-pocket"></span>
-      <span class="envelope-flap"></span>
-      <span class="wax-seal">J<span>&</span>A</span>
-      <span class="envelope-sprig sprig-left">❧</span>
-      <span class="envelope-sprig sprig-right">❧</span>
-    </button>
-    <p class="tap-to-open">TAP THE SEAL TO OPEN</p>
-    <p class="envelope-date">03 · 12 · 2026</p>
-  </section>
-  <main class="invitation" aria-label="Jude and Allyza wedding invitation">
-    <img class="poster" src="assets/invitation-reference.png" alt="Jude and Allyza's watercolor blue and gold wedding invitation with wedding details, attire guide, gift note and RSVP information">
-
-    <!-- Transparent clickable navigation hotspots preserve the exact artwork underneath. -->
-    <nav class="hotspots" aria-label="Invitation navigation">
-      <a class="hotspot story" href="#story" aria-label="Our story"></a>
-      <a class="hotspot details" href="#wedding-details" aria-label="Wedding details"></a>
-      <a class="hotspot attire" href="#attire-guide" aria-label="Attire guide"></a>
-      <a class="hotspot gift" href="#gift-guide" aria-label="Gift guide"></a>
-      <a class="hotspot nav-rsvp" href="#rsvp" aria-label="RSVP"></a>
-      <button class="hotspot heart" id="heart" type="button" aria-label="Save this invitation" aria-pressed="false"></button>
-      <a class="hotspot open" href="#story" aria-label="Open invitation"></a>
-      <a class="hotspot map" href="https://www.google.com/maps/search/?api=1&query=Municipal+Court+Dinalupihan+Bataan" target="_blank" rel="noopener" aria-label="Get directions to Municipal Court"></a>
-    </nav>
-
-    <section id="story" class="anchor story-anchor" aria-label="Our story"></section>
-    <section id="wedding-details" class="anchor details-anchor" aria-label="Wedding details"></section>
-    <section id="attire-guide" class="anchor attire-anchor" aria-label="Attire guide"></section>
-    <section id="gift-guide" class="anchor gift-anchor" aria-label="Gift guide"></section>
-
-    <!-- Functional RSVP controls are placed over the printed RSVP area in the reference image. -->
-    <form id="rsvp" class="rsvp-overlay" autocomplete="on">
-      <label class="sr-only" for="guest-name">Search your name</label>
-      <input id="guest-name" name="guestName" type="text" placeholder="Type your name..." required>
-      <div class="attendance" role="group" aria-label="Will you be attending?">
-        <label><input type="radio" name="attendance" value="Joyfully accepts" required> <span>Joyfully accepts</span></label>
-        <label><input type="radio" name="attendance" value="Regretfully declines"> <span>Regretfully declines</span></label>
-      </div>
-      <button type="submit" class="continue">Continue ♥</button>
-      <p id="rsvp-message" class="rsvp-message" role="status" aria-live="polite"></p>
-    </form>
-
-
-  </main>
-  <script src="app.js"></script>
-</body>
-</html>
+<body>
+<header class="site-header"><a class="monogram" href="#home">J&A</a><nav aria-label="Main navigation"><a href="#story">Our Story</a><a href="#details">Wedding Details</a><a href="#attire">Attire Guide</a><a href="#gift">Gift Guide</a><a href="#rsvp">RSVP</a></nav><a class="heart" href="#rsvp" aria-label="RSVP">♡</a></header>
+<main>
+<section class="hero paper" id="home"><p class="eyebrow">Together with their families</p><p class="intro">You are cordially invited to the wedding of</p><h1><span>Jude</span> <i>and</i> <span>Allyza</span></h1><div class="rings">──────────　♢　──────────</div><p class="date-line">THURSDAY, DECEMBER 3, 2026</p><a class="button" href="#story">Open Invitation <span>♥</span></a></section>
+<section class="story paper section" id="story"><div class="couple-wrap"><img src="assets/couple.png" alt="Watercolor illustration of the couple"></div><div class="story-copy"><p class="eyebrow gold">A promise of forever</p><h2>With joyful hearts</h2><p>As we exchange vows and begin our forever, we would be honored to have you witness our love and commitment.</p><div class="heart-rule">♥</div><blockquote>“When the time is right, I, the Lord, will make it happen.”</blockquote><small>ISAIAH 60:22</small></div></section>
+<section class="details paper section" id="details"><div class="section-heading"><p class="eyebrow">Save the date</p><h2>Our Wedding Day</h2></div><div class="detail-grid"><article class="detail-item"><span class="symbol">▦</span><strong>THURSDAY</strong><span>DECEMBER 3, 2026</span></article><article class="detail-item"><span class="symbol">◷</span><strong>11:00 AM</strong><span>Ceremony</span></article><article class="detail-item"><span class="symbol">⌖</span><strong>Municipal Court</strong><span>Dinalupihan, Bataan</span><a class="map-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Municipal+Court+Dinalupihan+Bataan+Philippines">Get directions ↗</a></article></div>
+<div class="countdown" aria-label="Countdown to the wedding"><p class="eyebrow">Countdown</p><div class="count-grid"><div><b id="days">—</b><span>Days</span></div><div><b id="hours">—</b><span>Hours</span></div><div><b id="minutes">—</b><span>Minutes</span></div><div><b id="seconds">—</b><span>Seconds</span></div></div></div>
+<div class="reception"><p class="eyebrow gold">The celebration continues</p><h3>Arca Vista</h3><p>Palihan, Hermosa, Bataan</p><a class="map-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Arca+Vista+Palihan+Hermosa+Bataan+Philippines">Get directions to reception ↗</a></div>
+<div class="maps-grid"><article class="map-card"><h3>Ceremony · Dinalupihan</h3><iframe title="Google Map - Municipal Court, Dinalupihan, Bataan" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Municipal+Court+Dinalupihan+Bataan+Philippines&output=embed"></iframe></article><article class="map-card"><h3>Reception · Hermosa</h3><iframe title="Google Map - Arca Vista, Palihan, Hermosa, Bataan" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=Arca+Vista+Palihan+Hermosa+Bataan+Philippines&output=embed"></iframe></article></div>
+</section>
+<section class="guides paper section"><article id="attire" class="guide"><p class="eyebrow">Dress the day</p><h2>Attire Guide</h2><p>We kindly request our guests to dress in our wedding colors.</p><div class="swatches"><div><i style="background:#123e78"></i><span>Navy<br>Blue</span></div><div><i style="background:#9db7d0"></i><span>Dusty<br>Blue</span></div><div><i style="background:#b9d9ef"></i><span>Powder<br>Blue</span></div><div><i style="background:#efd0a2"></i><span>Champagne</span></div><div><i style="background:#f7f1e7"></i><span>Ivory</span></div></div></article><article id="gift" class="guide"><p class="eyebrow gold">A gift from the heart</p><h2>Your presence is our present</h2><p>With all that we have, we’ve been truly blessed. Your presence and prayers are all that we request, but if you desire to give us a gift, a monetary gift is one we humbly suggest.</p><div class="heart-rule">♥</div></article></section>
+<section class="rsvp-section paper section" id="rsvp"><div class="rsvp-intro"><h2>Kindly RSVP</h2><p>Please confirm your attendance by selecting your name below.</p><p class="script-note">We can’t wait to celebrate with you!</p></div><form id="rsvp-form"><label for="guest-name">1. Search your name</label><input id="guest-name" name="guest" list="guest-options" placeholder="Type your name..." autocomplete="name" required><datalist id="guest-options"></datalist><p class="guest-hint" id="guest-hint" aria-live="polite">Enter your name to continue.</p><fieldset><legend>2. Will you be attending?</legend><label class="choice"><input type="radio" name="attendance" value="Joyfully accepts" required> Joyfully accepts</label><label class="choice"><input type="radio" name="attendance" value="Regretfully declines"> Regretfully declines</label></fieldset><button class="button" type="submit">Continue ♥</button><p id="rsvp-message" role="status" aria-live="polite"></p></form><aside class="seats"><strong>Your Seat Allocation</strong><b id="seat-count">—</b><span>seats</span><small>Including main guest</small></aside></section>
+</main>
+<footer class="footer paper"><p>With love,</p><h2>Jude & Allyza</h2><p class="date-line">DECEMBER 3, 2026</p><p>Thank you for being part of our beginning.</p><span>♡</span></footer>
+<script src="app.js"></script>
+</body></html>
