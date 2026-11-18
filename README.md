@@ -66,4 +66,6 @@ This makes the `Main Guest` and `Submitted By` columns show the member who actua
 
 ## Wedding background music
 
-The invitation includes the supplied YouTube video (`DD7MVBL0ei0`) in a visible embedded player with looping enabled. The page attempts autoplay when it loads and sends a play command on the visitor's first interaction (for example, opening the envelope). Audible autoplay is controlled by each visitor's browser/device and cannot be guaranteed. The player remains on the page while visitors browse and complete the RSVP. YouTube may show its own controls or ads, and playback depends on the video owner's embedding settings and availability.
+The website uses the MP3 supplied by the user, stored locally at `assets/wedding-song.mp3`. It has no YouTube player or YouTube ads. The page attempts audible autoplay when it loads; browsers may block that until a visitor interacts with the page. A fixed Play/Pause button remains available while guests browse and submit the RSVP. The audio loops continuously.
+
+Use this audio only if you have the necessary rights or permission to use and publish the recording on the wedding website.

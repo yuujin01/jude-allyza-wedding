@@ -10,19 +10,44 @@ function updateCountdown(){
 }
 updateCountdown();setInterval(updateCountdown,1000);
 
-// Background music: attempt autoplay on page load. Browsers may block audible autoplay;
-// retry immediately on the visitor's first interaction (including opening the envelope).
-const musicFrame=document.getElementById('music-player');
-let musicStartedByInteraction=false;
-function startWeddingMusic(){
- if(!musicFrame||musicStartedByInteraction)return;
- musicStartedByInteraction=true;
- try{
-  musicFrame.contentWindow.postMessage(JSON.stringify({event:'command',func:'playVideo',args:[]}), '*');
- }catch(_err){}
+// Local MP3 background music: attempt autoplay on page load. Browsers may block
+// audible autoplay; retry on the visitor's first interaction and provide a play/pause control.
+const weddingAudio=document.getElementById('wedding-audio');
+const musicToggle=document.getElementById('music-toggle');
+const musicToggleLabel=document.getElementById('music-toggle-label');
+const musicStatus=document.getElementById('music-status');
+let musicHasStarted=false;
+function updateMusicControl(){
+ const playing=!!weddingAudio&&!weddingAudio.paused;
+ if(musicToggle){musicToggle.setAttribute('aria-pressed',String(playing));musicToggle.setAttribute('aria-label',playing?'Pause wedding music':'Play wedding music');}
+ if(musicToggleLabel)musicToggleLabel.textContent=playing?'Pause music':'Play music';
+ if(musicStatus)musicStatus.textContent=playing?'Now playing: Ikaw At Ako — Piano Cover.':'If music does not start automatically, tap the music button.';
 }
-window.addEventListener('pointerdown',startWeddingMusic,{once:true});
-window.addEventListener('keydown',startWeddingMusic,{once:true});
+async function startWeddingMusic(){
+ if(!weddingAudio||musicHasStarted)return;
+ try{
+  await weddingAudio.play();
+  musicHasStarted=true;
+  updateMusicControl();
+ }catch(_err){
+  if(musicStatus)musicStatus.textContent='Tap the music button to play the wedding song.';
+ }
+}
+async function toggleWeddingMusic(){
+ if(!weddingAudio)return;
+ if(weddingAudio.paused){
+  try{await weddingAudio.play();musicHasStarted=true;}
+  catch(_err){if(musicStatus)musicStatus.textContent='Music could not start. Please try again.';}
+ }else{weddingAudio.pause();}
+ updateMusicControl();
+}
+weddingAudio?.addEventListener('play',updateMusicControl);
+weddingAudio?.addEventListener('pause',updateMusicControl);
+musicToggle?.addEventListener('click',toggleWeddingMusic);
+// Best-effort autoplay. Audible autoplay may be blocked by browser/device settings.
+window.addEventListener('load',()=>{startWeddingMusic();});
+window.addEventListener('pointerdown',()=>{if(weddingAudio?.paused)startWeddingMusic();},{once:true});
+window.addEventListener('keydown',()=>{if(weddingAudio?.paused)startWeddingMusic();},{once:true});
 
 // Envelope intro
 const screen=document.getElementById('envelope-screen'), envelope=document.getElementById('envelope');
