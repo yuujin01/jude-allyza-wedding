@@ -1,3 +1,6 @@
+// Jude & Allyza wedding website — Google Apps Script RSVP connection.
+const API_URL = 'https://script.google.com/macros/s/AKfycbwxMw3fwZRYtWOPfX8RvD-ge6stoVIC6l8VvGlq5u_w3984aO9ib4jC2iYRddHFxQ2wqA/exec';
+
 // Wedding countdown: December 3, 2026 at 11:00 AM Philippine time.
 const weddingAt = new Date('2026-12-03T11:00:00+08:00').getTime();
 function updateCountdown(){
@@ -15,33 +18,28 @@ document.getElementById('open-envelope')?.addEventListener('click',openInvitatio
 envelope?.addEventListener('click',openInvitation);
 envelope?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openInvitation()}});
 
-// Guest directory: a companion name resolves to the same household/group record.
-const guests = window.GUEST_DATA || [];
+// RSVP lookup is performed by the private Apps Script backend; no guest directory is shipped in the website.
 const input=document.getElementById('guest-name'), list=document.getElementById('guest-options');
 const hint=document.getElementById('guest-hint'), seatCount=document.getElementById('seat-count');
 const preview=document.getElementById('guest-preview'), previewMain=document.getElementById('preview-main');
 const previewSeats=document.getElementById('preview-seats'), companionList=document.getElementById('companion-list');
 const seatNote=document.getElementById('seat-note'), message=document.getElementById('rsvp-message');
-let selectedGuest=null, searchedMember='';
+let selectedGuest=null, searchedMember='', lookupToken=0;
 function norm(s){return String(s||'').toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ')}
-// Every registered person is searchable: the main guest AND every companion.
-// A companion match always opens the same shared group record.
-function allNames(g){return [...new Set([g.name,...(g.companions||[])].filter(Boolean))]}
-function findMatches(q){
- if(!q)return [];
- return guests.flatMap(g=>allNames(g).filter(n=>norm(n).includes(q)).map(n=>({group:g,matched:n})));
-}
 function updateSeatNote(){
  if(!selectedGuest)return;
  const used=[...companionList.querySelectorAll('.companion-row')].filter(r=>r.querySelector('.companion-check').checked&&r.querySelector('.companion-name').value.trim()).length+1;
  const vacant=selectedGuest.seats-used;
  seatNote.textContent=`${used} of ${selectedGuest.seats} allocated seats filled. ${vacant} seat(s) remaining. Vacant seats may be left unused.`;
 }
-function renderGuest(g,matched){
+function resetPreview(){selectedGuest=null;preview.hidden=true;seatCount.textContent='—';if(message)message.textContent='';}
+function renderGuest(data,matched){
+ const g={id:Number(data.groupId),name:data.mainGuest,seats:Number(data.seats),companions:Array.isArray(data.companions)?data.companions:[]};
  selectedGuest=g;searchedMember=matched;preview.hidden=false;previewMain.textContent=g.name;
  previewSeats.textContent=g.seats;seatCount.textContent=g.seats;companionList.innerHTML='';
  const foundAs=document.getElementById('matched-as');
- if(foundAs)foundAs.textContent=matched.toLocaleLowerCase()===g.name.toLocaleLowerCase()?'You searched the main guest name.':'You searched a companion name; this is the same guest group.';
+ if(foundAs)foundAs.textContent=norm(matched)===norm(g.name)?'You searched the main guest name.':'You searched a companion name; this is the same guest group.';
+ // The main guest occupies one allocated seat; only remaining seats are editable.
  for(let i=0;i<g.seats-1;i++){
   const value=g.companions[i]||'';const row=document.createElement('div');row.className='companion-row';
   const check=document.createElement('input');check.type='checkbox';check.className='companion-check';check.checked=Boolean(value);check.setAttribute('aria-label',`Include companion ${i+1}`);
@@ -51,24 +49,54 @@ function renderGuest(g,matched){
  }
  updateSeatNote();hint.textContent=`Found ${matched}. This name belongs to ${g.name}'s group. Any member of this group may complete the shared RSVP.`;
 }
-function resetPreview(){selectedGuest=null;preview.hidden=true;seatCount.textContent='—';if(message)message.textContent='';}
-input?.addEventListener('input',()=>{
- const q=norm(input.value);list.innerHTML='';resetPreview();
- if(!q){hint.textContent='Search using any registered name — main guest or companion.';return;}
- const matches=findMatches(q);const seen=new Set();
- matches.forEach(m=>{if(!seen.has(m.matched)){seen.add(m.matched);const opt=document.createElement('option');opt.value=m.matched;list.append(opt)}});
- const exact=matches.find(m=>norm(m.matched)===q);
- if(exact)renderGuest(exact.group,exact.matched);
- else hint.textContent=matches.length?`${matches.length} matching name(s). Choose or type the exact full name — companions are searchable too.`:'Name not found. Check the spelling or try another registered name.';
-});
-input?.addEventListener('change',()=>{const q=norm(input.value);const m=findMatches(q).find(x=>norm(x.matched)===q);if(m)renderGuest(m.group,m.matched)});
+function jsonpSearch(query){
+ return new Promise((resolve,reject)=>{
+  const callback='jaGuestLookup_'+Date.now()+'_'+Math.floor(Math.random()*100000);
+  const script=document.createElement('script');
+  const timeout=setTimeout(()=>{cleanup();reject(new Error('Search timed out. Please try again.'));},12000);
+  function cleanup(){clearTimeout(timeout);delete window[callback];script.remove();}
+  window[callback]=(result)=>{cleanup();resolve(result);};
+  script.onerror=()=>{cleanup();reject(new Error('Unable to connect to the guest list. Please try again.'));};
+  script.src=API_URL+'?action=search&q='+encodeURIComponent(query)+'&callback='+callback;
+  document.body.appendChild(script);
+ });
+}
+async function lookupGuest(){
+ const q=input.value.trim();const token=++lookupToken;resetPreview();
+ if(!q){hint.textContent='Search using your registered full name — main guest or companion.';return;}
+ hint.textContent='Searching guest list…';
+ try{
+  const result=await jsonpSearch(q);
+  if(token!==lookupToken)return;
+  if(result&&result.ok){renderGuest(result,q);}
+  else{hint.textContent=(result&&result.message)||'Guest not found. Please check the spelling and try the full name.';}
+ }catch(err){if(token===lookupToken)hint.textContent=err.message;}
+}
+input?.addEventListener('change',lookupGuest);
+input?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();lookupGuest();}});
+input?.addEventListener('input',()=>{lookupToken++;resetPreview();hint.textContent='Type your registered full name, then select the field suggestion or press Enter.';});
 
-document.getElementById('rsvp-form')?.addEventListener('submit',e=>{
- e.preventDefault();if(!selectedGuest){message.textContent='Please enter the exact full name of any registered group member first.';return;}
- const attendance=document.querySelector('input[name="attendance"]:checked');if(!attendance){message.textContent='Please select Joyfully accepts or Regretfully declines.';return;}
- const companions=[...companionList.querySelectorAll('.companion-row')].filter(r=>r.querySelector('.companion-check').checked).map(r=>r.querySelector('.companion-name').value.trim()).filter(Boolean);
- const total=attendance.value==='Joyfully accepts'?1+companions.length:0;
- const payload={groupId:selectedGuest.id,mainGuest:selectedGuest.name,searchedName:searchedMember,allocatedSeats:selectedGuest.seats,attendance:attendance.value,companions,attendingCount:total};
- // Backend connection is deliberately not simulated. This preview confirms the exact data before Sheets setup.
- message.textContent=`RSVP preview: ${payload.mainGuest} — ${payload.attendance}. ${payload.attendingCount} attending out of ${payload.allocatedSeats} allocated seats. Google Sheets saving still needs to be connected.`;
+// Submit URL-encoded form data. no-cors avoids a browser preflight; the endpoint response is opaque,
+// so the page reports that the request was sent, not that Google confirmed it.
+document.getElementById('rsvp-form')?.addEventListener('submit',async e=>{
+ e.preventDefault();
+ if(!selectedGuest){message.textContent='Please search and select the exact full name of a registered group member first.';return;}
+ const attendance=document.querySelector('input[name="attendance"]:checked');
+ if(!attendance){message.textContent='Please select Joyfully accepts or Regretfully declines.';return;}
+ const companions=[...companionList.querySelectorAll('.companion-row')]
+  .filter(r=>r.querySelector('.companion-check').checked)
+  .map(r=>r.querySelector('.companion-name').value.trim()).filter(Boolean);
+ if(companions.length+1>selectedGuest.seats){message.textContent='The number of attendees exceeds your allocated seats.';return;}
+ const status=attendance.value==='Joyfully accepts'?'Attending':'Declined';
+ const names=status==='Attending'?[selectedGuest.name,...companions]:[];
+ const payload=new URLSearchParams({groupId:String(selectedGuest.id),submittedBy:searchedMember,status,names:JSON.stringify(names)});
+ const button=e.currentTarget.querySelector('button[type="submit"]');
+ if(button)button.disabled=true;
+ message.textContent='Sending your RSVP…';
+ try{
+  await fetch(API_URL,{method:'POST',mode:'no-cors',body:payload});
+  message.textContent='Your RSVP request has been sent. Thank you! If you need to change your response, you may submit again using the same name.';
+ }catch(err){
+  message.textContent='We could not send your RSVP. Please check your internet connection and try again.';
+ }finally{if(button)button.disabled=false;}
 });
